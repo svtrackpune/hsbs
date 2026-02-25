@@ -10,7 +10,6 @@
     :root { --brand: #0052cc; --bg: #f4f5f7; }
     body { background: #172b4d; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
     
-    /* App Shell - Prevents the "Stretched" look on Desktop */
     .app-container {
       width: 100%; max-width: 450px; height: 100%; max-height: 850px;
       background: var(--bg); position: relative; overflow: hidden;
@@ -25,11 +24,10 @@
     .card-ui { background: white; border-radius: 12px; padding: 20px; border: 1px solid #dfe1e6; margin-bottom: 15px; }
     .logo { height: 50px; margin-bottom: 15px; object-fit: contain; }
     
-    /* Buttons & Toggles */
     .btn-app { border-radius: 10px; padding: 14px; font-weight: 700; border: none; width: 100%; transition: 0.2s; }
     .btn-next { background: var(--brand); color: white; }
     .choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-    .choice { border: 2px solid #ddd; padding: 12px; border-radius: 10px; text-align: center; background: white; cursor: pointer; font-weight: 600; }
+    .choice { border: 2px solid #ddd; padding: 12px; border-radius: 10px; text-align: center; background: white; cursor: pointer; font-weight: 600; transition: 0.2s; }
     .choice.selected { border-color: var(--brand); background: #deebff; color: var(--brand); }
     
     .hidden { display: none !important; }
@@ -54,7 +52,10 @@
     </section>
 
     <section class="screen" id="scr1">
-      <div class="p-3 bg-white border-bottom fw-bold text-center">Customer Details</div>
+      <div class="p-3 bg-white border-bottom fw-bold text-center d-flex justify-content-between align-items-center">
+        <span>Customer Details</span>
+        <span class="badge bg-primary" id="userBadge"></span>
+      </div>
       <div class="scroll-body">
         <div class="card-ui">
           <label class="small fw-bold text-muted">NAME</label>
@@ -76,17 +77,18 @@
           <div class="choice" id="optExist" onclick="App.setType('Existing')">Existing</div>
         </div>
         <div id="ispBox" class="hidden card-ui">
+          <label class="small fw-bold text-muted">CURRENT ISP</label>
           <select id="fIsp" class="form-select mb-2" onchange="App.loadComp()"></select>
-          <input type="number" id="fPrice" class="form-control" placeholder="Current Monthly Bill">
+          <input type="number" id="fPrice" class="form-control" placeholder="Current Monthly Bill (₹)">
         </div>
-        <label class="small fw-bold text-muted mt-3">IPTV INTEREST?</label>
+        <label class="small fw-bold text-muted mt-3">IPTV / OTT INTEREST?</label>
         <div class="choice-grid">
           <div class="choice selected" id="optNo" onclick="App.setIPTV('No')">No</div>
           <div class="choice" id="optYes" onclick="App.setIPTV('Yes')">Yes</div>
         </div>
       </div>
       <div class="p-3 bg-white border-top d-flex gap-2">
-        <button onclick="App.move(1)" class="btn-app bg-light">Back</button>
+        <button onclick="App.move(1)" class="btn-app bg-light text-dark">Back</button>
         <button onclick="App.move(3)" class="btn-app btn-next">Next</button>
       </div>
     </section>
@@ -95,6 +97,7 @@
       <div class="p-3 bg-white border-bottom fw-bold text-center">Recommendation</div>
       <div class="scroll-body">
         <div class="card-ui">
+          <label class="small fw-bold text-muted">RECOMMENDED PLAN</label>
           <select id="fHsbs" class="form-select mb-4" onchange="App.calc()"></select>
           <div class="p-3 bg-light rounded text-center">
             <small>ANNUAL SAVINGS</small>
@@ -102,20 +105,26 @@
           </div>
         </div>
         <button onclick="App.submit()" id="subBtn" class="btn-app btn-next" style="background:#00875a">Upload Lead</button>
-        <button onclick="App.move(2)" class="btn-app bg-light mt-2">Back</button>
+        <button onclick="App.move(2)" class="btn-app bg-light text-dark mt-2">Back</button>
       </div>
     </section>
   </div>
 
   <script>
+    // I am utilizing the URL setup you successfully configured.
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwxMKuxDPpIsXHm3pWGTVTYW-QIDbUtu_tRe2ok7kD1VoWj9coPSoIJSkii50IguR4/exec";
 
     const App = {
       db: {}, user: localStorage.getItem('hsbs_user'), type: 'Fresh', iptv: 'No',
       
       init() {
-        if(this.user) { this.fetchData(); this.move(1); }
-        else { this.move(0); }
+        if(this.user) { 
+          document.getElementById('userBadge').innerText = this.user;
+          this.fetchData(); 
+          this.move(1); 
+        } else { 
+          this.move(0); 
+        }
       },
 
       move(n) {
@@ -127,6 +136,8 @@
       login() {
         const u = document.getElementById('logU').value;
         const p = document.getElementById('logP').value;
+        if(!u || !p) return alert("Please enter ID and Password");
+        
         document.getElementById('loader').style.display = 'flex';
 
         fetch(GAS_URL, {
@@ -139,21 +150,40 @@
           if(res.success) {
             localStorage.setItem('hsbs_user', res.user);
             this.user = res.user;
+            document.getElementById('userBadge').innerText = this.user;
             this.fetchData();
             this.move(1);
-          } else { alert("Login Failed"); }
+          } else { alert("Login Failed: Incorrect ID or Password"); }
         }).catch(() => {
           document.getElementById('loader').style.display = 'none';
-          alert("Server Error: Check GAS Deployment Access");
+          alert("Server Error: Check connection.");
         });
       },
 
       fetchData() {
-        fetch(`${GAS_URL}?action=getFormData`).then(r => r.json()).then(res => {
-          this.db = res;
-          res.areas.forEach(a => document.getElementById('fArea').add(new Option(a, a)));
-          res.hsbsPlans.forEach(p => document.getElementById('fHsbs').add(new Option(p.displayText, p.name)));
-          Object.keys(res.competitorPlans).forEach(i => document.getElementById('fIsp').add(new Option(i, i)));
+        // We added text conversion here to catch Google Error HTML pages if your Sheets are misnamed.
+        fetch(`${GAS_URL}?action=getFormData`)
+        .then(r => r.text())
+        .then(text => {
+          try {
+            const res = JSON.parse(text);
+            this.db = res;
+            
+            const aDrop = document.getElementById('fArea');
+            const hDrop = document.getElementById('fHsbs');
+            const iDrop = document.getElementById('fIsp');
+            
+            aDrop.innerHTML = '<option value="">Select Area</option>';
+            hDrop.innerHTML = '<option value="">Select Plan</option>';
+            iDrop.innerHTML = '<option value="">Select ISP</option>';
+
+            res.areas.forEach(a => aDrop.add(new Option(a, a)));
+            res.hsbsPlans.forEach(p => hDrop.add(new Option(p.displayText, p.name)));
+            Object.keys(res.competitorPlans).forEach(i => iDrop.add(new Option(i, i)));
+          } catch(e) {
+            console.error(text);
+            alert("Database Error: Check your Google Sheet. Do you have tabs named exactly 'Areas' and 'Plans'?");
+          }
         });
       },
 
@@ -189,8 +219,30 @@
           iptv: this.iptv, plan: document.getElementById('fHsbs').value,
           save: document.getElementById('fSave').innerText
         };
+        
         fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveLead', data: data }) })
-        .then(() => { alert("Success!"); location.reload(); });
+        .then(r => r.json())
+        .then(res => {
+            if(res.success) {
+                alert("Lead Uploaded Successfully!");
+                this.resetForm(); // <--- THIS FIXES THE LOGOUT ISSUE
+            } else {
+                alert("Failed to save lead.");
+            }
+        }).finally(() => {
+            btn.disabled = false; btn.innerText = "Upload Lead";
+        });
+      },
+
+      resetForm() {
+        // Clears the inputs and smoothly returns to Step 1 without logging out
+        document.getElementById('fName').value = "";
+        document.getElementById('fMob').value = "";
+        document.getElementById('fPrice').value = "";
+        document.getElementById('fSave').innerText = "₹ 0.00";
+        this.setType('Fresh');
+        this.setIPTV('No');
+        this.move(1);
       }
     };
 
