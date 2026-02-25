@@ -3,23 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <style>
     :root { --brand: #0052cc; --bg: #f4f5f7; }
-    body { background: #172b4d; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: sans-serif; }
+    body { background: #172b4d; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
     .app-container { width: 100%; max-width: 450px; height: 100%; max-height: 850px; background: var(--bg); position: relative; overflow: hidden; display: flex; flex-direction: column; }
     .screen { position: absolute; width: 100%; height: 100%; display: none; flex-direction: column; background: var(--bg); }
     .screen.active { display: flex; }
     .scroll-body { flex: 1; padding: 20px; overflow-y: auto; }
     .card-ui { background: white; border-radius: 12px; padding: 15px; border: 1px solid #dfe1e6; margin-bottom: 12px; }
-    .logo { height: 45px; margin-bottom: 10px; object-fit: contain; }
     .btn-app { border-radius: 10px; padding: 14px; font-weight: 700; border: none; width: 100%; }
     .btn-next { background: var(--brand); color: white; }
     .choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
-    .choice { border: 2px solid #ddd; padding: 10px; border-radius: 10px; text-align: center; background: white; cursor: pointer; font-size: 0.9rem; }
-    .choice.selected { border-color: var(--brand); background: #deebff; color: var(--brand); }
-    .form-label { font-size: 0.75rem; font-weight: bold; color: #6b778c; margin-top: 10px; display: block; }
+    .choice { border: 2px solid #ddd; padding: 10px; border-radius: 10px; text-align: center; background: white; cursor: pointer; }
+    .choice.selected { border-color: var(--brand); background: #deebff; color: var(--brand); font-weight: bold; }
+    .form-label { font-size: 0.7rem; font-weight: bold; color: #6b778c; text-transform: uppercase; margin-top: 10px; display: block; }
     .hidden { display: none !important; }
   </style>
 </head>
@@ -28,9 +26,9 @@
   <div class="app-container">
     <section class="screen" id="scrAuth">
       <div class="scroll-body d-flex flex-column justify-content-center text-center">
-        <img src="assets/logo.png" class="logo mx-auto" onerror="this.src='https://via.placeholder.com/200x60?text=HSBS+PRO'">
+        <img src="assets/logo.png" style="height:50px;" class="mx-auto mb-4" onerror="this.src='https://via.placeholder.com/200x50?text=HSBS'">
         <div class="card-ui">
-          <input type="text" id="logU" class="form-control mb-2" placeholder="Executive ID">
+          <input type="text" id="logU" class="form-control mb-2" placeholder="ID">
           <input type="password" id="logP" class="form-control mb-3" placeholder="Password">
           <button onclick="App.login()" class="btn-app btn-next">Login</button>
         </div>
@@ -38,49 +36,50 @@
     </section>
 
     <section class="screen" id="scr1">
-      <div class="p-3 bg-white border-bottom fw-bold text-center">Customer & GPS</div>
+      <div class="p-3 bg-white border-bottom fw-bold text-center">Step 1: Customer</div>
       <div class="scroll-body">
         <div class="card-ui">
-          <label class="form-label">FULL NAME</label>
+          <label class="form-label">Full Name</label>
           <input type="text" id="fName" class="form-control">
-          <label class="form-label">MOBILE</label>
+          <label class="form-label">Mobile</label>
           <input type="tel" id="fMob" class="form-control" maxlength="10">
-          <label class="form-label">AREA</label>
+          <label class="form-label">Area</label>
           <select id="fArea" class="form-select"></select>
-          <div class="mt-3 small text-muted text-center" id="gpsStatus"><i class="fas fa-location-arrow"></i> Fetching GPS...</div>
+          <div class="mt-2 small text-muted text-center" id="gpsStatus">📡 Checking GPS...</div>
         </div>
-        <button onclick="App.move(2)" class="btn-app btn-next">Next: Setup</button>
+        <button onclick="App.move(2)" class="btn-app btn-next">Next</button>
       </div>
     </section>
 
     <section class="screen" id="scr2">
-      <div class="p-3 bg-white border-bottom fw-bold text-center">Analysis</div>
+      <div class="p-3 bg-white border-bottom fw-bold text-center">Step 2: Analysis</div>
       <div class="scroll-body">
-        <label class="form-label">BROADBAND STATUS</label>
+        <label class="form-label">Broadband Status</label>
         <div class="choice-grid">
           <div class="choice selected" id="stFresh" onclick="App.setStatus('Fresh')">Fresh</div>
           <div class="choice" id="stExist" onclick="App.setStatus('Existing')">Existing</div>
         </div>
         
         <div id="ispBox" class="hidden card-ui">
-          <label class="form-label">CURRENT ISP</label>
+          <label class="form-label">Current ISP</label>
           <select id="fIsp" class="form-select mb-2" onchange="App.loadCompPlans()"></select>
+          <label class="form-label">Current Plan</label>
           <select id="fCompPlan" class="form-select mb-2"></select>
-          <label class="form-label">EXPIRY DATE</label>
+          <label class="form-label">Expiry Date</label>
           <input type="date" id="fExpiry" class="form-control">
         </div>
 
-        <label class="form-label">IPTV/OTT INTEREST?</label>
+        <label class="form-label">IPTV/OTT Interest?</label>
         <div class="choice-grid">
           <div class="choice selected" id="iptvNo" onclick="App.setIPTV('No')">No</div>
           <div class="choice" id="iptvYes" onclick="App.setIPTV('Yes')">Yes</div>
         </div>
 
         <div id="tvBox" class="hidden card-ui">
-          <label class="form-label">TV TYPE</label>
+          <label class="form-label">TV Type</label>
           <div class="choice-grid">
             <div class="choice selected" id="tvSmart" onclick="App.setTV('Smart TV')">Smart</div>
-            <div class="choice" id="tvNormal" onclick="App.setTV('Normal + Box')">Normal</div>
+            <div class="choice" id="tvNormal" onclick="App.setTV('Normal')">Normal</div>
           </div>
         </div>
       </div>
@@ -88,21 +87,19 @@
     </section>
 
     <section class="screen" id="scr3">
-      <div class="p-3 bg-white border-bottom fw-bold text-center">Recommended</div>
+      <div class="p-3 bg-white border-bottom fw-bold text-center">Final Recommendation</div>
       <div class="scroll-body">
         <div class="card-ui">
-          <label class="form-label">IS CUSTOMER INTERESTED?</label>
-          <div class="choice-grid mb-3">
+          <label class="form-label">Is Interested?</label>
+          <div class="choice-grid">
             <div class="choice selected" id="intYes" onclick="App.setInterested('Yes')">Yes</div>
             <div class="choice" id="intNo" onclick="App.setInterested('No')">No</div>
           </div>
-          <label class="form-label">RECOMMENDED SPEED</label>
-          <select id="fSpeed" class="form-select mb-3">
-            <option>40 Mbps</option><option>100 Mbps</option><option>200 Mbps</option><option>300 Mbps</option>
-          </select>
-          <label class="form-label">HSBS PLAN</label>
-          <select id="fHsbs" class="form-select mb-3"></select>
-          <input type="text" id="fRem" class="form-control" placeholder="Remarks...">
+          <label class="form-label">Recommended Speed</label>
+          <select id="fSpeed" class="form-select mb-3"><option>40 Mbps</option><option>100 Mbps</option><option>200 Mbps</option></select>
+          <label class="form-label">HSBS Plan</label>
+          <select id="fHsbs" class="form-select mb-2"></select>
+          <input type="text" id="fRem" class="form-control" placeholder="Remarks">
         </div>
         <button onclick="App.submit()" id="subBtn" class="btn-app btn-next" style="background:#00875a">Upload Lead</button>
       </div>
@@ -115,14 +112,12 @@
     const App = {
       db:{}, user:localStorage.getItem('h_user'), lat:0, lng:0, status:'Fresh', iptv:'No', tv:'Smart TV', interested:'Yes',
 
-      init() {
-        if(this.user) { this.fetchData(); this.getGPS(); this.move(1); } else { this.move(0); }
-      },
+      init() { if(this.user) { this.fetchData(); this.getGPS(); this.move(1); } else this.move(0); },
 
       getGPS() {
         navigator.geolocation.getCurrentPosition(p => {
           this.lat = p.coords.latitude; this.lng = p.coords.longitude;
-          document.getElementById('gpsStatus').innerHTML = "📍 Location Secured";
+          document.getElementById('gpsStatus').innerText = "📍 GPS Fixed";
         });
       },
 
@@ -139,52 +134,35 @@
         const isp = document.getElementById('fIsp').value;
         const drop = document.getElementById('fCompPlan');
         drop.innerHTML = "";
-        this.db.competitorPlans[isp].forEach(p => drop.add(new Option(p, p)));
+        if(this.db.competitorPlans[isp]) this.db.competitorPlans[isp].forEach(p => drop.add(new Option(p, p)));
       },
 
-      move(n) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById('scr' + (n==0?'Auth':n)).classList.add('active'); },
+      move(n) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(n==0?'scrAuth':'scr'+n).classList.add('active'); },
 
       login() {
-        const u = document.getElementById('logU').value;
-        fetch(GAS_URL, { method:'POST', body: JSON.stringify({action:'validateLogin', u:u, p:document.getElementById('logP').value}) })
-        .then(r=>r.json()).then(res => { if(res.success) { localStorage.setItem('h_user', res.user); location.reload(); } else alert("Failed"); });
+        fetch(GAS_URL, { method:'POST', body: JSON.stringify({action:'validateLogin', u:document.getElementById('logU').value, p:document.getElementById('logP').value}) })
+        .then(r=>r.json()).then(res => { if(res.success) { localStorage.setItem('h_user', res.user); location.reload(); } else alert("Login Failed"); });
       },
 
-      setStatus(v) { 
-        this.status = v; 
-        document.getElementById('stFresh').classList.toggle('selected', v=='Fresh'); 
-        document.getElementById('stExist').classList.toggle('selected', v=='Existing');
-        document.getElementById('ispBox').classList.toggle('hidden', v=='Fresh');
-      },
-
-      setIPTV(v) { 
-        this.iptv = v; 
-        document.getElementById('iptvNo').classList.toggle('selected', v=='No'); 
-        document.getElementById('iptvYes').classList.toggle('selected', v=='Yes');
-        document.getElementById('tvBox').classList.toggle('hidden', v=='No');
-      },
-
-      setTV(v) { 
-        this.tv = v; 
-        document.getElementById('tvSmart').classList.toggle('selected', v=='Smart TV'); 
-        document.getElementById('tvNormal').classList.toggle('selected', v=='Normal + Box'); 
-      },
-
-      setInterested(v) {
-        this.interested = v;
-        document.getElementById('intYes').classList.toggle('selected', v=='Yes');
-        document.getElementById('intNo').classList.toggle('selected', v=='No');
-      },
+      setStatus(v) { this.status = v; document.getElementById('stFresh').classList.toggle('selected', v=='Fresh'); document.getElementById('stExist').classList.toggle('selected', v=='Existing'); document.getElementById('ispBox').classList.toggle('hidden', v=='Fresh'); },
+      setIPTV(v) { this.iptv = v; document.getElementById('iptvNo').classList.toggle('selected', v=='No'); document.getElementById('iptvYes').classList.toggle('selected', v=='Yes'); document.getElementById('tvBox').classList.toggle('hidden', v=='No'); },
+      setTV(v) { this.tv = v; document.getElementById('tvSmart').classList.toggle('selected', v=='Smart TV'); document.getElementById('tvNormal').classList.toggle('selected', v=='Normal'); },
+      setInterested(v) { this.interested = v; document.getElementById('intYes').classList.toggle('selected', v=='Yes'); document.getElementById('intNo').classList.toggle('selected', v=='No'); },
 
       submit() {
-        const btn = document.getElementById('subBtn'); btn.disabled = true; btn.innerText = "Syncing...";
+        const btn = document.getElementById('subBtn'); btn.disabled = true; btn.innerText = "Saving...";
         const data = {
           exec:this.user, name:document.getElementById('fName').value, mob:document.getElementById('fMob').value, area:document.getElementById('fArea').value,
-          lat:this.lat, lng:this.lng, status:this.status, isp:document.getElementById('fIsp').value, expiry:document.getElementById('fExpiry').value,
-          interested:this.interested, iptv:this.iptv, tv_type:this.tv, speed:document.getElementById('fSpeed').value, save: "₹0.00", rem:document.getElementById('fRem').value
+          lat:this.lat, lng:this.lng, status:this.status, isp:document.getElementById('fIsp').value, compPlan:document.getElementById('fCompPlan').value, 
+          expiry:document.getElementById('fExpiry').value, interested:this.interested, iptv:this.iptv, tv_type:this.tv, speed:document.getElementById('fSpeed').value, save: "₹0.00", rem:document.getElementById('fRem').value
         };
         fetch(GAS_URL, { method:'POST', body: JSON.stringify({action:'saveLead', data:data}) })
-        .then(() => { alert("Lead Saved!"); location.reload(); });
+        .then(() => { alert("Success!"); this.resetForm(); }).finally(() => { btn.disabled=false; btn.innerText="Upload Lead"; });
+      },
+
+      resetForm() {
+        document.getElementById('fName').value = ""; document.getElementById('fMob').value = ""; document.getElementById('fRem').value = "";
+        this.move(1);
       }
     };
     App.init();
