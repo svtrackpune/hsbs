@@ -5,17 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <style>
-    :root { --brand: #0052cc; --bg: #f4f5f7; }
-    body { background: #172b4d; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+    :root { --brand: #0052cc; --bg: #f4f5f7; --danger: #de350b; }
+    body { background: #172b4d; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: sans-serif; }
     .app-container { width: 100%; max-width: 450px; height: 100%; max-height: 850px; background: var(--bg); position: relative; overflow: hidden; display: flex; flex-direction: column; }
-    .screen { position: absolute; width: 100%; height: 100%; display: none; flex-direction: column; background: var(--bg); }
+    
+    /* Header with Logout */
+    .app-header { background: white; padding: 12px 15px; border-bottom: 1px solid #dfe1e6; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
+    .btn-logout { background: none; border: 1px solid var(--danger); color: var(--danger); font-size: 0.7rem; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; }
+
+    .screen { position: absolute; width: 100%; height: 100%; display: none; flex-direction: column; background: var(--bg); top: 50px; height: calc(100% - 50px); }
     .screen.active { display: flex; }
-    .scroll-body { flex: 1; padding: 20px; overflow-y: auto; }
+    .scroll-body { flex: 1; padding: 20px; overflow-y: auto; padding-bottom: 80px; }
     .card-ui { background: white; border-radius: 12px; padding: 15px; border: 1px solid #dfe1e6; margin-bottom: 12px; }
-    .btn-app { border-radius: 10px; padding: 14px; font-weight: 700; border: none; width: 100%; }
+    .btn-app { border-radius: 10px; padding: 14px; font-weight: 700; border: none; width: 100%; transition: 0.2s; }
     .btn-next { background: var(--brand); color: white; }
     .choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
-    .choice { border: 2px solid #ddd; padding: 10px; border-radius: 10px; text-align: center; background: white; cursor: pointer; }
+    .choice { border: 2px solid #ddd; padding: 10px; border-radius: 10px; text-align: center; background: white; cursor: pointer; font-size: 0.85rem; }
     .choice.selected { border-color: var(--brand); background: #deebff; color: var(--brand); font-weight: bold; }
     .form-label { font-size: 0.7rem; font-weight: bold; color: #6b778c; text-transform: uppercase; margin-top: 10px; display: block; }
     .hidden { display: none !important; }
@@ -24,11 +29,16 @@
 <body>
 
   <div class="app-container">
-    <section class="screen" id="scrAuth">
+    <div class="app-header" id="headerUI" style="display:none;">
+      <span>HSBS Lead Pro</span>
+      <button class="btn-logout" onclick="App.logout()">Logout</button>
+    </div>
+
+    <section class="screen active" id="scrAuth" style="top:0; height:100%;">
       <div class="scroll-body d-flex flex-column justify-content-center text-center">
         <img src="assets/logo.png" style="height:50px;" class="mx-auto mb-4" onerror="this.src='https://via.placeholder.com/200x50?text=HSBS'">
         <div class="card-ui">
-          <input type="text" id="logU" class="form-control mb-2" placeholder="ID">
+          <input type="text" id="logU" class="form-control mb-2" placeholder="Executive ID">
           <input type="password" id="logP" class="form-control mb-3" placeholder="Password">
           <button onclick="App.login()" class="btn-app btn-next">Login</button>
         </div>
@@ -36,7 +46,6 @@
     </section>
 
     <section class="screen" id="scr1">
-      <div class="p-3 bg-white border-bottom fw-bold text-center">Step 1: Customer</div>
       <div class="scroll-body">
         <div class="card-ui">
           <label class="form-label">Full Name</label>
@@ -45,14 +54,13 @@
           <input type="tel" id="fMob" class="form-control" maxlength="10">
           <label class="form-label">Area</label>
           <select id="fArea" class="form-select"></select>
-          <div class="mt-2 small text-muted text-center" id="gpsStatus">📡 Checking GPS...</div>
+          <div class="mt-3 small text-muted text-center" id="gpsStatus">📡 Fetching GPS...</div>
         </div>
-        <button onclick="App.move(2)" class="btn-app btn-next">Next</button>
+        <button onclick="App.move(2)" class="btn-app btn-next">Next Step</button>
       </div>
     </section>
 
     <section class="screen" id="scr2">
-      <div class="p-3 bg-white border-bottom fw-bold text-center">Step 2: Analysis</div>
       <div class="scroll-body">
         <label class="form-label">Broadband Status</label>
         <div class="choice-grid">
@@ -83,11 +91,10 @@
           </div>
         </div>
       </div>
-      <div class="p-3 d-flex gap-2"><button onclick="App.move(1)" class="btn-app bg-white">Back</button><button onclick="App.move(3)" class="btn-app btn-next">Next</button></div>
+      <div class="p-3 d-flex gap-2 bg-white border-top"><button onclick="App.move(1)" class="btn-app bg-light">Back</button><button onclick="App.move(3)" class="btn-app btn-next">Next</button></div>
     </section>
 
     <section class="screen" id="scr3">
-      <div class="p-3 bg-white border-bottom fw-bold text-center">Final Recommendation</div>
       <div class="scroll-body">
         <div class="card-ui">
           <label class="form-label">Is Interested?</label>
@@ -96,12 +103,13 @@
             <div class="choice" id="intNo" onclick="App.setInterested('No')">No</div>
           </div>
           <label class="form-label">Recommended Speed</label>
-          <select id="fSpeed" class="form-select mb-3"><option>40 Mbps</option><option>100 Mbps</option><option>200 Mbps</option></select>
+          <select id="fSpeed" class="form-select mb-3"></select>
           <label class="form-label">HSBS Plan</label>
           <select id="fHsbs" class="form-select mb-2"></select>
-          <input type="text" id="fRem" class="form-control" placeholder="Remarks">
+          <input type="text" id="fRem" class="form-control" placeholder="Remarks...">
         </div>
         <button onclick="App.submit()" id="subBtn" class="btn-app btn-next" style="background:#00875a">Upload Lead</button>
+        <button onclick="App.move(2)" class="btn-app bg-light mt-2">Back</button>
       </div>
     </section>
   </div>
@@ -112,20 +120,40 @@
     const App = {
       db:{}, user:localStorage.getItem('h_user'), lat:0, lng:0, status:'Fresh', iptv:'No', tv:'Smart TV', interested:'Yes',
 
-      init() { if(this.user) { this.fetchData(); this.getGPS(); this.move(1); } else this.move(0); },
+      init() { 
+        if(this.user) { 
+          document.getElementById('headerUI').style.display = 'flex';
+          this.fetchData(); this.getGPS(); this.move(1); 
+        } else {
+          this.move(0); 
+        }
+      },
+
+      logout() {
+        localStorage.removeItem('h_user');
+        location.reload();
+      },
 
       getGPS() {
         navigator.geolocation.getCurrentPosition(p => {
           this.lat = p.coords.latitude; this.lng = p.coords.longitude;
           document.getElementById('gpsStatus').innerText = "📍 GPS Fixed";
-        });
+        }, () => { document.getElementById('gpsStatus').innerText = "⚠️ GPS Denied"; });
       },
 
       fetchData() {
         fetch(`${GAS_URL}?action=getFormData`).then(r => r.json()).then(res => {
           this.db = res;
+          // Populate Areas
           res.areas.forEach(a => document.getElementById('fArea').add(new Option(a, a)));
+          // Populate HSBS Plans
           res.hsbsPlans.forEach(p => document.getElementById('fHsbs').add(new Option(p.displayText, p.name)));
+          // Populate Recommended Speeds (Unique list from Plans)
+          const speeds = [...new Set(res.hsbsPlans.map(p => p.speed))];
+          const speedDrop = document.getElementById('fSpeed');
+          speedDrop.innerHTML = "";
+          speeds.forEach(s => speedDrop.add(new Option(s, s)));
+          // Populate ISP list
           Object.keys(res.competitorPlans).forEach(i => document.getElementById('fIsp').add(new Option(i, i)));
         });
       },
@@ -137,10 +165,16 @@
         if(this.db.competitorPlans[isp]) this.db.competitorPlans[isp].forEach(p => drop.add(new Option(p, p)));
       },
 
-      move(n) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(n==0?'scrAuth':'scr'+n).classList.add('active'); },
+      move(n) { 
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
+        const target = (n==0?'scrAuth':'scr'+n);
+        document.getElementById(target).classList.add('active'); 
+      },
 
       login() {
-        fetch(GAS_URL, { method:'POST', body: JSON.stringify({action:'validateLogin', u:document.getElementById('logU').value, p:document.getElementById('logP').value}) })
+        const u = document.getElementById('logU').value;
+        const p = document.getElementById('logP').value;
+        fetch(GAS_URL, { method:'POST', body: JSON.stringify({action:'validateLogin', u:u, p:p}) })
         .then(r=>r.json()).then(res => { if(res.success) { localStorage.setItem('h_user', res.user); location.reload(); } else alert("Login Failed"); });
       },
 
