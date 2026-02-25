@@ -5,38 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <style>
-    :root { --brand: #0052cc; --bg: #f4f5f7; --danger: #de350b; }
-    body { background: #172b4d; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: sans-serif; }
-    .app-container { width: 100%; max-width: 450px; height: 100%; max-height: 850px; background: var(--bg); position: relative; overflow: hidden; display: flex; flex-direction: column; }
-    
-    /* Header with Logout */
-    .app-header { background: white; padding: 12px 15px; border-bottom: 1px solid #dfe1e6; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
-    .btn-logout { background: none; border: 1px solid var(--danger); color: var(--danger); font-size: 0.7rem; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; }
-
-    .screen { position: absolute; width: 100%; height: 100%; display: none; flex-direction: column; background: var(--bg); top: 50px; height: calc(100% - 50px); }
+    :root { --brand: #0052cc; --bg: #f4f5f7; --accent: #00875a; }
+    body { background: #172b4d; height: 100vh; margin: 0; font-family: sans-serif; }
+    .app-container { width: 100%; max-width: 450px; height: 100%; margin: auto; background: var(--bg); position: relative; overflow: hidden; display: flex; flex-direction: column; }
+    .app-header { background: white; padding: 10px 15px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+    .screen { position: absolute; width: 100%; height: calc(100% - 50px); top: 50px; display: none; flex-direction: column; padding: 15px; overflow-y: auto; }
     .screen.active { display: flex; }
-    .scroll-body { flex: 1; padding: 20px; overflow-y: auto; padding-bottom: 80px; }
-    .card-ui { background: white; border-radius: 12px; padding: 15px; border: 1px solid #dfe1e6; margin-bottom: 12px; }
-    .btn-app { border-radius: 10px; padding: 14px; font-weight: 700; border: none; width: 100%; transition: 0.2s; }
+    .card-ui { background: white; border-radius: 10px; padding: 15px; border: 1px solid #dfe1e6; margin-bottom: 12px; }
+    .btn-app { border-radius: 8px; padding: 12px; font-weight: bold; border: none; width: 100%; margin-top: 10px; }
     .btn-next { background: var(--brand); color: white; }
-    .choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
-    .choice { border: 2px solid #ddd; padding: 10px; border-radius: 10px; text-align: center; background: white; cursor: pointer; font-size: 0.85rem; }
+    .choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .choice { border: 2px solid #ddd; padding: 10px; border-radius: 8px; text-align: center; background: white; cursor: pointer; font-size: 0.85rem; }
     .choice.selected { border-color: var(--brand); background: #deebff; color: var(--brand); font-weight: bold; }
-    .form-label { font-size: 0.7rem; font-weight: bold; color: #6b778c; text-transform: uppercase; margin-top: 10px; display: block; }
+    .form-label { font-size: 0.7rem; font-weight: bold; color: #6b778c; text-transform: uppercase; margin-top: 8px; display: block; }
+    .summary-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #eee; font-size: 0.9rem; }
     .hidden { display: none !important; }
   </style>
 </head>
 <body>
 
   <div class="app-container">
-    <div class="app-header" id="headerUI" style="display:none;">
-      <span>HSBS Lead Pro</span>
-      <button class="btn-logout" onclick="App.logout()">Logout</button>
+    <div class="app-header" id="nav" style="display:none;">
+      <span class="fw-bold">HSBS PRO</span>
+      <button class="btn btn-sm btn-outline-danger" onclick="App.logout()">Logout</button>
     </div>
 
-    <section class="screen active" id="scrAuth" style="top:0; height:100%;">
-      <div class="scroll-body d-flex flex-column justify-content-center text-center">
-        <img src="assets/logo.png" style="height:50px;" class="mx-auto mb-4" onerror="this.src='https://via.placeholder.com/200x50?text=HSBS'">
+    <section class="screen active" id="scr0" style="top:0; height:100%;">
+      <div class="d-flex flex-column justify-content-center h-100 px-3 text-center">
+        <h3 class="text-white mb-4">HSBS LOGIN</h3>
         <div class="card-ui">
           <input type="text" id="logU" class="form-control mb-2" placeholder="Executive ID">
           <input type="password" id="logP" class="form-control mb-3" placeholder="Password">
@@ -46,71 +42,77 @@
     </section>
 
     <section class="screen" id="scr1">
-      <div class="scroll-body">
-        <div class="card-ui">
-          <label class="form-label">Full Name</label>
-          <input type="text" id="fName" class="form-control">
-          <label class="form-label">Mobile</label>
-          <input type="tel" id="fMob" class="form-control" maxlength="10">
-          <label class="form-label">Area</label>
-          <select id="fArea" class="form-select"></select>
-          <div class="mt-3 small text-muted text-center" id="gpsStatus">📡 Fetching GPS...</div>
+      <div class="card-ui">
+        <label class="form-label">Full Name</label>
+        <input type="text" id="fName" class="form-control mb-2">
+        <label class="form-label">Mobile</label>
+        <input type="tel" id="fMob" class="form-control mb-2" maxlength="10">
+        <label class="form-label">Area</label>
+        <select id="fArea" class="form-select mb-3"></select>
+        <div class="p-2 bg-light text-center rounded border">
+          <div id="gpsStatus" class="small mb-1 text-muted">📡 GPS Pending...</div>
+          <button class="btn btn-sm btn-secondary w-100" onclick="App.getGPS()">Fix GPS</button>
         </div>
-        <button onclick="App.move(2)" class="btn-app btn-next">Next Step</button>
       </div>
+      <button onclick="App.move(2)" class="btn-app btn-next">Next: Setup</button>
     </section>
 
     <section class="screen" id="scr2">
-      <div class="scroll-body">
-        <label class="form-label">Broadband Status</label>
-        <div class="choice-grid">
-          <div class="choice selected" id="stFresh" onclick="App.setStatus('Fresh')">Fresh</div>
-          <div class="choice" id="stExist" onclick="App.setStatus('Existing')">Existing</div>
-        </div>
-        
-        <div id="ispBox" class="hidden card-ui">
-          <label class="form-label">Current ISP</label>
-          <select id="fIsp" class="form-select mb-2" onchange="App.loadCompPlans()"></select>
-          <label class="form-label">Current Plan</label>
-          <select id="fCompPlan" class="form-select mb-2"></select>
-          <label class="form-label">Expiry Date</label>
-          <input type="date" id="fExpiry" class="form-control">
-        </div>
+      <label class="form-label">Broadband Status</label>
+      <div class="choice-grid">
+        <div class="choice selected" id="stFresh" onclick="App.setStatus('Fresh')">Fresh</div>
+        <div class="choice" id="stExist" onclick="App.setStatus('Existing')">Existing</div>
+      </div>
+      
+      <div id="ispBox" class="hidden card-ui">
+        <label class="form-label">Provider</label>
+        <select id="fIsp" class="form-select mb-2" onchange="App.loadComp()"></select>
+        <select id="fCompPlan" class="form-select mb-2" onchange="App.calc()"></select>
+        <input type="date" id="fExpiry" class="form-control mb-1">
+      </div>
 
-        <label class="form-label">IPTV/OTT Interest?</label>
-        <div class="choice-grid">
-          <div class="choice selected" id="iptvNo" onclick="App.setIPTV('No')">No</div>
-          <div class="choice" id="iptvYes" onclick="App.setIPTV('Yes')">Yes</div>
-        </div>
+      <label class="form-label">IPTV/OTT Interest?</label>
+      <div class="choice-grid">
+        <div class="choice selected" id="iptvNo" onclick="App.setIPTV('No')">No</div>
+        <div class="choice" id="iptvYes" onclick="App.setIPTV('Yes')">Yes</div>
+      </div>
 
-        <div id="tvBox" class="hidden card-ui">
-          <label class="form-label">TV Type</label>
-          <div class="choice-grid">
-            <div class="choice selected" id="tvSmart" onclick="App.setTV('Smart TV')">Smart</div>
-            <div class="choice" id="tvNormal" onclick="App.setTV('Normal')">Normal</div>
-          </div>
+      <div id="tvBox" class="hidden card-ui">
+        <label class="form-label">TV Type</label>
+        <div class="choice-grid">
+          <div class="choice selected" id="tvSmart" onclick="App.setTV('Android TV')">Android TV</div>
+          <div class="choice" id="tvNormal" onclick="App.setTV('Not Android')">Not Android</div>
         </div>
       </div>
-      <div class="p-3 d-flex gap-2 bg-white border-top"><button onclick="App.move(1)" class="btn-app bg-light">Back</button><button onclick="App.move(3)" class="btn-app btn-next">Next</button></div>
+      <div class="d-flex gap-2"><button onclick="App.move(1)" class="btn-app bg-white border">Back</button><button onclick="App.move(3)" class="btn-app btn-next">Next</button></div>
     </section>
 
     <section class="screen" id="scr3">
-      <div class="scroll-body">
-        <div class="card-ui">
-          <label class="form-label">Is Interested?</label>
-          <div class="choice-grid">
-            <div class="choice selected" id="intYes" onclick="App.setInterested('Yes')">Yes</div>
-            <div class="choice" id="intNo" onclick="App.setInterested('No')">No</div>
-          </div>
-          <label class="form-label">Recommended Speed</label>
-          <select id="fSpeed" class="form-select mb-3"></select>
-          <label class="form-label">HSBS Plan</label>
-          <select id="fHsbs" class="form-select mb-2"></select>
-          <input type="text" id="fRem" class="form-control" placeholder="Remarks...">
+      <div class="card-ui">
+        <label class="form-label">Interested?</label>
+        <div class="choice-grid">
+          <div class="choice selected" id="intYes" onclick="App.setInterested('Yes')">Yes</div>
+          <div class="choice" id="intNo" onclick="App.setInterested('No')">No</div>
         </div>
-        <button onclick="App.submit()" id="subBtn" class="btn-app btn-next" style="background:#00875a">Upload Lead</button>
-        <button onclick="App.move(2)" class="btn-app bg-light mt-2">Back</button>
+        <label class="form-label">Select HSBS Plan</label>
+        <select id="fHsbs" class="form-select mb-3" onchange="App.calc()"></select>
+        <div class="p-2 bg-success bg-opacity-10 text-success text-center rounded">
+          <small>Est. Annual Saving</small>
+          <h4 class="mb-0 fw-bold" id="vSave">₹ 0.00</h4>
+        </div>
+        <input type="text" id="fRem" class="form-control mt-3" placeholder="Remarks...">
       </div>
+      <button onclick="App.showSummary()" class="btn-app btn-next">Verify Summary</button>
+      <button onclick="App.move(2)" class="btn-app bg-white border mt-1">Back</button>
+    </section>
+
+    <section class="screen" id="scr4">
+      <div class="card-ui">
+        <h5 class="fw-bold text-center border-bottom pb-2">LEAD SUMMARY</h5>
+        <div id="summaryContent"></div>
+      </div>
+      <button onclick="App.submit()" id="subBtn" class="btn-app btn-next" style="background:var(--accent)">Confirm & Upload</button>
+      <button onclick="App.move(3)" class="btn-app bg-white border mt-1">Edit Lead</button>
     </section>
   </div>
 
@@ -118,85 +120,85 @@
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwxMKuxDPpIsXHm3pWGTVTYW-QIDbUtu_tRe2ok7kD1VoWj9coPSoIJSkii50IguR4/exec";
 
     const App = {
-      db:{}, user:localStorage.getItem('h_user'), lat:0, lng:0, status:'Fresh', iptv:'No', tv:'Smart TV', interested:'Yes',
+      db:{}, user:localStorage.getItem('h_user'), lat:0, lng:0, status:'Fresh', iptv:'No', tv:'Android TV', interested:'Yes',
 
-      init() { 
-        if(this.user) { 
-          document.getElementById('headerUI').style.display = 'flex';
-          this.fetchData(); this.getGPS(); this.move(1); 
-        } else {
-          this.move(0); 
-        }
-      },
-
-      logout() {
-        localStorage.removeItem('h_user');
-        location.reload();
-      },
+      init() { if(this.user) { document.getElementById('nav').style.display='flex'; this.fetchData(); this.getGPS(); this.move(1); } else this.move(0); },
+      logout() { localStorage.removeItem('h_user'); location.reload(); },
 
       getGPS() {
         navigator.geolocation.getCurrentPosition(p => {
           this.lat = p.coords.latitude; this.lng = p.coords.longitude;
-          document.getElementById('gpsStatus').innerText = "📍 GPS Fixed";
-        }, () => { document.getElementById('gpsStatus').innerText = "⚠️ GPS Denied"; });
+          document.getElementById('gpsStatus').innerText = "✅ GPS Fixed";
+        }, () => { document.getElementById('gpsStatus').innerText = "❌ GPS Error"; });
       },
 
       fetchData() {
         fetch(`${GAS_URL}?action=getFormData`).then(r => r.json()).then(res => {
           this.db = res;
-          // Populate Areas
           res.areas.forEach(a => document.getElementById('fArea').add(new Option(a, a)));
-          // Populate HSBS Plans
-          res.hsbsPlans.forEach(p => document.getElementById('fHsbs').add(new Option(p.displayText, p.name)));
-          // Populate Recommended Speeds (Unique list from Plans)
-          const speeds = [...new Set(res.hsbsPlans.map(p => p.speed))];
-          const speedDrop = document.getElementById('fSpeed');
-          speedDrop.innerHTML = "";
-          speeds.forEach(s => speedDrop.add(new Option(s, s)));
-          // Populate ISP list
-          Object.keys(res.competitorPlans).forEach(i => document.getElementById('fIsp').add(new Option(i, i)));
+          res.hsbsPlans.forEach((p, i) => document.getElementById('fHsbs').add(new Option(p.fullName, i)));
+          Object.keys(res.competitorPricing).forEach(isp => document.getElementById('fIsp').add(new Option(isp, isp)));
         });
       },
 
-      loadCompPlans() {
+      loadComp() {
         const isp = document.getElementById('fIsp').value;
-        const drop = document.getElementById('fCompPlan');
-        drop.innerHTML = "";
-        if(this.db.competitorPlans[isp]) this.db.competitorPlans[isp].forEach(p => drop.add(new Option(p, p)));
+        const drop = document.getElementById('fCompPlan'); drop.innerHTML = "";
+        this.db.competitorPricing[isp].forEach((plan, i) => drop.add(new Option(plan.p, i)));
+        this.calc();
       },
 
-      move(n) { 
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
-        const target = (n==0?'scrAuth':'scr'+n);
-        document.getElementById(target).classList.add('active'); 
+      calc() {
+        const isp = document.getElementById('fIsp').value;
+        const compIdx = document.getElementById('fCompPlan').value;
+        const hsbsIdx = document.getElementById('fHsbs').value;
+        const cPlan = this.db.competitorPricing[isp][compIdx];
+        const hPlan = this.db.hsbsPlans[hsbsIdx];
+        if(cPlan && hPlan && this.status === 'Existing') {
+          const savings = (cPlan.m - hPlan.monthlyCost) * 12;
+          document.getElementById('vSave').innerText = "₹ " + (savings > 0 ? savings.toFixed(2) : "0.00");
+        } else { document.getElementById('vSave').innerText = "₹ 0.00"; }
       },
+
+      move(n) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById('scr'+n).classList.add('active'); },
 
       login() {
-        const u = document.getElementById('logU').value;
-        const p = document.getElementById('logP').value;
-        fetch(GAS_URL, { method:'POST', body: JSON.stringify({action:'validateLogin', u:u, p:p}) })
+        fetch(GAS_URL, { method:'POST', body: JSON.stringify({action:'validateLogin', u:document.getElementById('logU').value, p:document.getElementById('logP').value}) })
         .then(r=>r.json()).then(res => { if(res.success) { localStorage.setItem('h_user', res.user); location.reload(); } else alert("Login Failed"); });
       },
 
-      setStatus(v) { this.status = v; document.getElementById('stFresh').classList.toggle('selected', v=='Fresh'); document.getElementById('stExist').classList.toggle('selected', v=='Existing'); document.getElementById('ispBox').classList.toggle('hidden', v=='Fresh'); },
+      setStatus(v) { this.status = v; document.getElementById('stFresh').classList.toggle('selected', v=='Fresh'); document.getElementById('stExist').classList.toggle('selected', v=='Existing'); document.getElementById('ispBox').classList.toggle('hidden', v=='Fresh'); this.calc(); },
       setIPTV(v) { this.iptv = v; document.getElementById('iptvNo').classList.toggle('selected', v=='No'); document.getElementById('iptvYes').classList.toggle('selected', v=='Yes'); document.getElementById('tvBox').classList.toggle('hidden', v=='No'); },
-      setTV(v) { this.tv = v; document.getElementById('tvSmart').classList.toggle('selected', v=='Smart TV'); document.getElementById('tvNormal').classList.toggle('selected', v=='Normal'); },
+      setTV(v) { this.tv = v; document.getElementById('tvSmart').classList.toggle('selected', v=='Android TV'); document.getElementById('tvNormal').classList.toggle('selected', v=='Not Android'); },
       setInterested(v) { this.interested = v; document.getElementById('intYes').classList.toggle('selected', v=='Yes'); document.getElementById('intNo').classList.toggle('selected', v=='No'); },
 
-      submit() {
-        const btn = document.getElementById('subBtn'); btn.disabled = true; btn.innerText = "Saving...";
-        const data = {
-          exec:this.user, name:document.getElementById('fName').value, mob:document.getElementById('fMob').value, area:document.getElementById('fArea').value,
-          lat:this.lat, lng:this.lng, status:this.status, isp:document.getElementById('fIsp').value, compPlan:document.getElementById('fCompPlan').value, 
-          expiry:document.getElementById('fExpiry').value, interested:this.interested, iptv:this.iptv, tv_type:this.tv, speed:document.getElementById('fSpeed').value, save: "₹0.00", rem:document.getElementById('fRem').value
-        };
-        fetch(GAS_URL, { method:'POST', body: JSON.stringify({action:'saveLead', data:data}) })
-        .then(() => { alert("Success!"); this.resetForm(); }).finally(() => { btn.disabled=false; btn.innerText="Upload Lead"; });
+      showSummary() {
+        const hPlan = this.db.hsbsPlans[document.getElementById('fHsbs').value];
+        const rows = [
+          ["Name", document.getElementById('fName').value],
+          ["Mobile", document.getElementById('fMob').value],
+          ["Area", document.getElementById('fArea').value],
+          ["Status", this.status],
+          ["Plan", hPlan.fullName],
+          ["Interested", this.interested],
+          ["IPTV", this.iptv + (this.iptv=='Yes' ? ` (${this.tv})` : "")]
+        ];
+        document.getElementById('summaryContent').innerHTML = rows.map(r => `<div class="summary-row"><b>${r[0]}</b><span>${r[1]}</span></div>`).join('');
+        this.move(4);
       },
 
-      resetForm() {
-        document.getElementById('fName').value = ""; document.getElementById('fMob').value = ""; document.getElementById('fRem').value = "";
-        this.move(1);
+      submit() {
+        const btn = document.getElementById('subBtn'); btn.disabled = true; btn.innerText = "Syncing...";
+        const hPlan = this.db.hsbsPlans[document.getElementById('fHsbs').value];
+        const data = {
+          exec:this.user, name:document.getElementById('fName').value, mob:document.getElementById('fMob').value, area:document.getElementById('fArea').value,
+          lat:this.lat, lng:this.lng, status:this.status, isp:document.getElementById('fIsp').value, 
+          currPlan: document.getElementById('fCompPlan').options[document.getElementById('fCompPlan').selectedIndex]?.text || "N/A",
+          expiry:document.getElementById('fExpiry').value, interested:this.interested, iptv:this.iptv, tv_type:this.tv, 
+          speed:hPlan.speed, save: document.getElementById('vSave').innerText, rem:document.getElementById('fRem').value
+        };
+        fetch(GAS_URL, { method:'POST', body: JSON.stringify({action:'saveLead', data:data}) })
+        .then(() => { alert("Success!"); location.reload(); });
       }
     };
     App.init();
