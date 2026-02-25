@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <style>
+    body { background:#f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    .container { max-width: 550px; margin-top: 20px; margin-bottom: 40px; }
+    .logo-container { text-align: center; margin-bottom: 20px; }
+    .logo-img { max-height: 80px; width: auto; }
+    .card { border-radius: 15px; border: none; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+    .hidden { display: none; }
+    .form-label { font-size: 0.85rem; font-weight: 600; color: #555; margin-bottom: 4px; }
+    .summary-item { border-bottom: 1px solid #f0f0f0; padding: 10px 0; }
+    .summary-item b { color: #333; text-transform: capitalize; }
+    .btn-primary { background: #0056b3; border: none; padding: 12px; }
+    .btn-success { padding: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo-container">
+      <img src="https://drive.google.com/file/d/1hTyBjYL-zdGXlw71PBEzX34I7DB9IWwK/view?usp=sharing" alt="HSBS Logo" class="logo-img">
+    </div>
+
+    <div id="loginSection" class="card p-4 shadow-sm">
+      <h4 class="text-center mb-4">Executive Login</h4>
+      <div class="mb-3">
+        <label class="form-label">Username</label>
+        <input type="text" id="userInput" class="form-control" placeholder="Enter ID">
+      </div>
+      <div class="mb-4">
+        <label class="form-label">Password</label>
+        <input type="password" id="passInput" class="form-control" placeholder="••••••••">
+      </div>
+      <button onclick="handleLogin()" id="loginBtn" class="btn btn-primary w-100">Login</button>
+    </div>
+
+    <div id="formSection" class="card p-4 hidden">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <span class="badge bg-secondary" id="execDisplay"></span>
+        <button onclick="location.reload()" class="btn btn-sm btn-outline-danger">Logout</button>
+      </div>
+      
+      <form id="leadForm">
+        <div class="mb-3">
+          <label class="form-label">Customer Name</label>
+          <input type="text" name="customer_name" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Mobile (10 Digits)</label>
+          <input type="text" name="mobile" id="mobileInput" class="form-control" pattern="\d{10}" maxlength="10" required placeholder="9876543210">
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Area</label>
+            <select name="area" id="areaDropdown" class="form-select" required></select>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Broadband Status</label>
+            <select name="broadband_status" class="form-select">
+              <option>Fresh installation</option>
+              <option>Existing user</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="card bg-light p-3 mb-3">
+          <label class="form-label">Current ISP Details</label>
+          <select name="current_isp" id="ispDropdown" class="form-select mb-2" onchange="onISPChange()"></select>
+          
+          <div id="compPlanContainer" class="hidden">
+             <select id="compPlanDropdown" class="form-select mb-2" onchange="onCompPlanSelect()"></select>
+          </div>
+          <input type="number" id="manualPrice" class="form-control" placeholder="Price incl. GST" oninput="runCalculations()">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Recommended HSBS Plan</label>
+          <select name="recommended_speed" id="hsbsPlanDropdown" class="form-select" onchange="runCalculations()"></select>
+        </div>
+
+        <div class="row">
+          <div class="col-6 mb-3"><label class="form-label">Expiry Date</label><input type="date" name="expiry_date" class="form-control"></div>
+          <div class="col-6 mb-3">
+            <label class="form-label">Interest Level</label>
+            <select name="interested" class="form-select">
+              <option>Highly interested</option><option>Need follow up</option><option>No</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-6 mb-3">
+            <label class="form-label">TV Type</label>
+            <select name="tv_type" class="form-select">
+              <option>Android tv</option><option>Smart (not android)</option><option>Simple LED</option>
+            </select>
+          </div>
+          <div class="col-6 mb-3">
+            <label class="form-label">IPTV/OTT</label>
+            <select name="iptv_ott_interest" class="form-select"><option>Yes</option><option>No</option></select>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label text-primary">Estimated Yearly Saving</label>
+          <input type="text" name="yearly_saving" id="savingDisplay" class="form-control fw-bold text-success bg-white" readonly value="Rs 0.00">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Remarks</label>
+          <textarea name="remarks" class="form-control" rows="2"></textarea>
+        </div>
+
+        <button type="button" onclick="showSummary()" class="btn btn-success w-100 shadow-sm">Review & Next</button>
+      </form>
+    </div>
+
+    <div id="summarySection" class="card p-4 hidden">
+      <h4 class="mb-4">Confirm Lead Summary</h4>
+      <div id="summaryList" class="bg-light p-3 rounded mb-4"></div>
+      <div class="d-grid gap-2">
+        <button onclick="finalSubmit()" id="submitBtn" class="btn btn-primary">Confirm & Submit to Sheet</button>
+        <button onclick="goBack()" class="btn btn-outline-secondary">Edit Details</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let globalData = {};
+    let activeExec = "";
+    let locationData = { lat: "", lng: "" };
+
+    window.onload = () => {
+      // Capture Lat/Long on load
+      navigator.geolocation.getCurrentPosition(
+        p => { locationData.lat = p.coords.latitude; locationData.lng = p.coords.longitude; },
+        e => { console.error("Location blocked"); }
+      );
+
+      // Load Config Data from Sheet
+      google.script.run.withSuccessHandler(res => {
+        globalData = res;
+        res.areas.forEach(a => document.getElementById('areaDropdown').add(new Option(a, a)));
+        res.hsbsPlans.forEach(p => document.getElementById('hsbsPlanDropdown').add(new Option(p.displayText, p.name)));
+        
+        const ispDrop = document.getElementById('ispDropdown');
+        ispDrop.add(new Option("-- Select Current ISP --", ""));
+        Object.keys(res.competitorPlans).forEach(isp => ispDrop.add(new Option(isp, isp)));
+      }).getFormData();
+    };
+
+    function handleLogin() {
+      const u = document.getElementById('userInput').value;
+      const p = document.getElementById('passInput').value;
+      if(!u || !p) return alert("Fill all fields");
+      
+      document.getElementById('loginBtn').disabled = true;
+      google.script.run.withSuccessHandler(res => {
+        if(res.success) {
+          activeExec = res.user;
+          document.getElementById('loginSection').classList.add('hidden');
+          document.getElementById('formSection').classList.remove('hidden');
+          document.getElementById('execDisplay').innerText = "Executive: " + activeExec;
+        } else {
+          alert("Login Failed: Incorrect Username or Password");
+          document.getElementById('loginBtn').disabled = false;
+        }
+      }).validateLogin(u, p);
+    }
+
+    function onISPChange() {
+      const isp = document.getElementById('ispDropdown').value;
+      const container = document.getElementById('compPlanContainer');
+      const dropdown = document.getElementById('compPlanDropdown');
+      
+      dropdown.innerHTML = '<option value="0">Select Plan or Type Price Below</option>';
+      if(globalData.competitorPlans[isp] && globalData.competitorPlans[isp].length > 0) {
+        container.classList.remove('hidden');
+        globalData.competitorPlans[isp].forEach(p => dropdown.add(new Option(p.text, p.price)));
+      } else {
+        container.classList.add('hidden');
+      }
+      runCalculations();
+    }
+
+    function onCompPlanSelect() {
+      document.getElementById('manualPrice').value = document.getElementById('compPlanDropdown').value;
+      runCalculations();
+    }
+
+    function runCalculations() {
+      const currentMonthly = parseFloat(document.getElementById('manualPrice').value || 0);
+      const hsbsPlanName = document.getElementById('hsbsPlanDropdown').value;
+      const planObj = globalData.hsbsPlans.find(p => p.name === hsbsPlanName);
+      
+      if(planObj) {
+        const hsbsMonthly = (planObj.basePrice * 1.18) / planObj.duration;
+        const yearlySaving = (currentMonthly - hsbsMonthly) * 12;
+        document.getElementById('savingDisplay').value = yearlySaving > 0 ? "Rs " + yearlySaving.toFixed(2) : "Rs 0.00";
+      }
+    }
+
+    function showSummary() {
+      const form = document.getElementById('leadForm');
+      if(document.getElementById('mobileInput').value.length !== 10) return alert("Enter valid 10-digit mobile");
+      if(!form.checkValidity()) return form.reportValidity();
+      
+      let summaryHtml = "";
+      const formData = new FormData(form);
+      formData.forEach((value, key) => {
+        summaryHtml += `<div class="summary-item"><b>${key.replace(/_/g, ' ')}:</b> ${value}</div>`;
+      });
+      
+      document.getElementById('summaryList').innerHTML = summaryHtml;
+      document.getElementById('formSection').classList.add('hidden');
+      document.getElementById('summarySection').classList.remove('hidden');
+    }
+
+    function goBack() {
+      document.getElementById('summarySection').classList.add('hidden');
+      document.getElementById('formSection').classList.remove('hidden');
+    }
+
+    function finalSubmit() {
+      document.getElementById('submitBtn').disabled = true;
+      const data = Object.fromEntries(new FormData(document.getElementById('leadForm')));
+      data.executive_id = activeExec;
+      data.latitude = locationData.lat;
+      data.longitude = locationData.lng;
+
+      google.script.run.withSuccessHandler(() => {
+        alert("Lead submitted successfully!");
+        document.getElementById('leadForm').reset();
+        document.getElementById('submitBtn').disabled = false;
+        goBack(); // Return to form for infinite entry
+      }).saveLead(data);
+    }
+  </script>
+</body>
+</html>
