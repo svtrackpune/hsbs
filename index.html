@@ -3,71 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="apple-mobile-web-app-capable" content="yes">
   <link rel="manifest" href="manifest.json">
   <title>HSBS Lead Pro</title>
-  
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-  
   <style>
     :root { --brand: #0052cc; --bg: #f4f5f7; }
+    body { background: #172b4d; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
     
-    /* Force Mobile View on Desktop */
-    body { 
-      background: #253858; 
-      display: flex; 
-      justify-content: center; 
-      align-items: center; 
-      height: 100vh; 
-      margin: 0; 
-      font-family: sans-serif;
-    }
-
+    /* App Shell - Prevents the "Stretched" look on Desktop */
     .app-container {
-      width: 100%;
-      max-width: 450px; /* Limits width on desktop */
-      height: 100%;
-      max-height: 900px;
-      background: var(--bg);
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+      width: 100%; max-width: 450px; height: 100%; max-height: 850px;
+      background: var(--bg); position: relative; overflow: hidden;
+      display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
     }
 
-    .screen { 
-      position: absolute; width: 100%; height: 100%; 
-      display: none; flex-direction: column; background: var(--bg); 
-    }
-    .screen.active { display: flex; animation: fadeIn 0.3s; }
-    
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .screen { position: absolute; width: 100%; height: 100%; display: none; flex-direction: column; background: var(--bg); }
+    .screen.active { display: flex; animation: fadeIn 0.3s forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    .scroll-body { flex: 1; padding: 25px; overflow-y: auto; }
+    .scroll-body { flex: 1; padding: 20px; overflow-y: auto; }
+    .card-ui { background: white; border-radius: 12px; padding: 20px; border: 1px solid #dfe1e6; margin-bottom: 15px; }
+    .logo { height: 50px; margin-bottom: 15px; object-fit: contain; }
     
-    .card-ui { 
-      background: white; border-radius: 16px; padding: 20px; 
-      border: 1px solid #dfe1e6; box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
-    }
-
-    .logo { height: 50px; object-fit: contain; margin-bottom: 10px; }
-    
-    .btn-app { 
-      border-radius: 12px; padding: 16px; font-weight: 700; 
-      border: none; width: 100%; transition: 0.2s; 
-    }
+    /* Buttons & Toggles */
+    .btn-app { border-radius: 10px; padding: 14px; font-weight: 700; border: none; width: 100%; transition: 0.2s; }
     .btn-next { background: var(--brand); color: white; }
-    .btn-back { background: #ebecf0; color: #42526e; margin-top: 10px; }
-
-    .form-control { border: 2px solid #ebecf0; padding: 12px; border-radius: 10px; margin-bottom: 15px; }
-    .hidden { display: none !important; }
+    .choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+    .choice { border: 2px solid #ddd; padding: 12px; border-radius: 10px; text-align: center; background: white; cursor: pointer; font-weight: 600; }
+    .choice.selected { border-color: var(--brand); background: #deebff; color: var(--brand); }
     
-    #loader { 
-      position: absolute; top:0; left:0; width:100%; height:100%; 
-      background: rgba(255,255,255,0.8); z-index: 100; 
-      display: none; align-items: center; justify-content: center; 
-    }
+    .hidden { display: none !important; }
+    #loader { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.8); z-index: 100; display: none; align-items: center; justify-content: center; }
   </style>
 </head>
 <body>
@@ -80,35 +46,72 @@
         <img src="assets/logo.png" class="logo mx-auto" onerror="this.src='https://via.placeholder.com/200x60?text=HSBS+PRO'">
         <h4 class="fw-bold mb-4">Executive Portal</h4>
         <div class="card-ui">
-          <input type="text" id="logU" class="form-control" placeholder="Executive ID">
-          <input type="password" id="logP" class="form-control" placeholder="Password">
+          <input type="text" id="logU" class="form-control mb-3" placeholder="Executive ID">
+          <input type="password" id="logP" class="form-control mb-4" placeholder="Password">
           <button onclick="App.login()" class="btn-app btn-next">Login</button>
         </div>
       </div>
     </section>
 
     <section class="screen" id="scr1">
-      <div class="p-3 bg-white border-bottom fw-bold text-center">Step 1: Customer</div>
+      <div class="p-3 bg-white border-bottom fw-bold text-center">Customer Details</div>
       <div class="scroll-body">
         <div class="card-ui">
-          <label class="small fw-bold">NAME</label>
-          <input type="text" id="fName" class="form-control">
-          <label class="small fw-bold">MOBILE</label>
-          <input type="tel" id="fMob" class="form-control" maxlength="10">
-          <label class="small fw-bold">AREA</label>
-          <select id="fArea" class="form-control"></select>
+          <label class="small fw-bold text-muted">NAME</label>
+          <input type="text" id="fName" class="form-control mb-3">
+          <label class="small fw-bold text-muted">MOBILE</label>
+          <input type="tel" id="fMob" class="form-control mb-3" maxlength="10">
+          <label class="small fw-bold text-muted">AREA</label>
+          <select id="fArea" class="form-select"></select>
         </div>
-        <button onclick="App.move(2)" class="btn-app btn-next mt-3">Next Step</button>
+        <button onclick="App.move(2)" class="btn-app btn-next">Next: Setup Analysis</button>
       </div>
     </section>
 
-    </div>
+    <section class="screen" id="scr2">
+      <div class="p-3 bg-white border-bottom fw-bold text-center">Analysis</div>
+      <div class="scroll-body">
+        <div class="choice-grid">
+          <div class="choice selected" id="optFresh" onclick="App.setType('Fresh')">Fresh</div>
+          <div class="choice" id="optExist" onclick="App.setType('Existing')">Existing</div>
+        </div>
+        <div id="ispBox" class="hidden card-ui">
+          <select id="fIsp" class="form-select mb-2" onchange="App.loadComp()"></select>
+          <input type="number" id="fPrice" class="form-control" placeholder="Current Monthly Bill">
+        </div>
+        <label class="small fw-bold text-muted mt-3">IPTV INTEREST?</label>
+        <div class="choice-grid">
+          <div class="choice selected" id="optNo" onclick="App.setIPTV('No')">No</div>
+          <div class="choice" id="optYes" onclick="App.setIPTV('Yes')">Yes</div>
+        </div>
+      </div>
+      <div class="p-3 bg-white border-top d-flex gap-2">
+        <button onclick="App.move(1)" class="btn-app bg-light">Back</button>
+        <button onclick="App.move(3)" class="btn-app btn-next">Next</button>
+      </div>
+    </section>
+
+    <section class="screen" id="scr3">
+      <div class="p-3 bg-white border-bottom fw-bold text-center">Recommendation</div>
+      <div class="scroll-body">
+        <div class="card-ui">
+          <select id="fHsbs" class="form-select mb-4" onchange="App.calc()"></select>
+          <div class="p-3 bg-light rounded text-center">
+            <small>ANNUAL SAVINGS</small>
+            <h2 id="fSave" class="fw-bold text-success mb-0">₹ 0.00</h2>
+          </div>
+        </div>
+        <button onclick="App.submit()" id="subBtn" class="btn-app btn-next" style="background:#00875a">Upload Lead</button>
+        <button onclick="App.move(2)" class="btn-app bg-light mt-2">Back</button>
+      </div>
+    </section>
+  </div>
 
   <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbzZy-i7CmNQMOidshyHIn5v0ikxTDt2lyoGN1XkCqx6hIgSeSirvSSMdOTfOg_Acss/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwxMKuxDPpIsXHm3pWGTVTYW-QIDbUtu_tRe2ok7kD1VoWj9coPSoIJSkii50IguR4/exec";
 
     const App = {
-      user: localStorage.getItem('hsbs_user'),
+      db: {}, user: localStorage.getItem('hsbs_user'), type: 'Fresh', iptv: 'No',
       
       init() {
         if(this.user) { this.fetchData(); this.move(1); }
@@ -117,9 +120,8 @@
 
       move(n) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        const id = n === 0 ? 'scrAuth' : 'scr'+n;
-        const target = document.getElementById(id);
-        if(target) target.classList.add('active');
+        const target = n === 0 ? 'scrAuth' : 'scr' + n;
+        document.getElementById(target).classList.add('active');
       },
 
       login() {
@@ -137,23 +139,58 @@
           if(res.success) {
             localStorage.setItem('hsbs_user', res.user);
             this.user = res.user;
-            location.reload(); 
-          } else {
-            alert("Login Failed");
-          }
-        }).catch(e => {
+            this.fetchData();
+            this.move(1);
+          } else { alert("Login Failed"); }
+        }).catch(() => {
           document.getElementById('loader').style.display = 'none';
-          alert("Check Connection/GAS URL");
+          alert("Server Error: Check GAS Deployment Access");
         });
       },
 
       fetchData() {
-        fetch(`${GAS_URL}?action=getFormData`)
-        .then(r => r.json())
-        .then(res => {
-          const area = document.getElementById('fArea');
-          res.areas.forEach(a => area.add(new Option(a, a)));
+        fetch(`${GAS_URL}?action=getFormData`).then(r => r.json()).then(res => {
+          this.db = res;
+          res.areas.forEach(a => document.getElementById('fArea').add(new Option(a, a)));
+          res.hsbsPlans.forEach(p => document.getElementById('fHsbs').add(new Option(p.displayText, p.name)));
+          Object.keys(res.competitorPlans).forEach(i => document.getElementById('fIsp').add(new Option(i, i)));
         });
+      },
+
+      setType(v) {
+        this.type = v;
+        document.getElementById('optFresh').classList.toggle('selected', v === 'Fresh');
+        document.getElementById('optExist').classList.toggle('selected', v === 'Existing');
+        document.getElementById('ispBox').classList.toggle('hidden', v === 'Fresh');
+      },
+
+      setIPTV(v) {
+        this.iptv = v;
+        document.getElementById('optNo').classList.toggle('selected', v === 'No');
+        document.getElementById('optYes').classList.toggle('selected', v === 'Yes');
+      },
+
+      calc() {
+        const curr = parseFloat(document.getElementById('fPrice').value || 0);
+        const plan = this.db.hsbsPlans.find(p => p.name === document.getElementById('fHsbs').value);
+        if(plan) {
+          const s = (curr - (plan.basePrice / plan.duration)) * 12;
+          document.getElementById('fSave').innerText = "₹ " + (s > 0 ? s.toFixed(2) : "0.00");
+        }
+      },
+
+      submit() {
+        const btn = document.getElementById('subBtn');
+        btn.disabled = true; btn.innerText = "Uploading...";
+        const data = {
+          exec: this.user, name: document.getElementById('fName').value,
+          mob: document.getElementById('fMob').value, area: document.getElementById('fArea').value,
+          type: this.type, isp: document.getElementById('fIsp').value,
+          iptv: this.iptv, plan: document.getElementById('fHsbs').value,
+          save: document.getElementById('fSave').innerText
+        };
+        fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveLead', data: data }) })
+        .then(() => { alert("Success!"); location.reload(); });
       }
     };
 
